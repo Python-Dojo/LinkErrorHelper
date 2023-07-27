@@ -33,3 +33,7 @@
 
 **/Debug/**
 **/Release/**
+
+/LinkErrorHelper/LinkErrorHelperTool/Debug
+/LinkErrorHelper/packages
+/LinkErrorHelper/.vs
