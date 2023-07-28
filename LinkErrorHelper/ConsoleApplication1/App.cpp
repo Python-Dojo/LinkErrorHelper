@@ -2,10 +2,27 @@
 
 #include <iostream>
 
+#include "LinkErrorHelperTool.h"
+
 int main()
 {
+    using namespace link_error_helper;
+    using std::filesystem::path;
+    const path binPath = GetBinPath(path("../"));
+    const std::vector<path> allPaths = GetAllDlls(binPath);
+    const std::vector<DllInfo> allExports = GetAllExports(allPaths);
+    //const auto suggestions = link_error_helper::GetSuggestions(allExports);
+
     // TODO Link to the tool, call most of the functions in the right order and return a suggestion
     std::cout << "Hello World!\n";
+    for (const auto& dll : allExports)
+    {
+        std::cout << dll.m_dllName;
+        for (const auto& exports : dll.m_dllExports)
+        {
+            std::cout << exports;
+        }
+    }
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
