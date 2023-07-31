@@ -35,7 +35,8 @@ namespace /*anonymous*/ {
     {
         result << "Failed to get exports";
         return result;
-        //throw std::runtime_error("failed to run command");
+        // We don't expect this to fail currently so no point in throwing and catching
+        // throw std::runtime_error("failed to run command");
     }
 
     while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) != nullptr) 
@@ -63,8 +64,7 @@ std::vector<std::filesystem::path> GetAllDlls(const std::filesystem::path& a_bin
     using std::filesystem::path;
     using std::filesystem::recursive_directory_iterator;
     std::vector<path> result;
-    // must have at least 2 binaries to be getting link errors 
-    // TODO - Find a more sensible way of estimating this value
+    // TODO - Find a more sensible way of estimating this value (must have at least 2 binaries to be getting link errors)
     result.reserve(2);
     for (const auto& dll : recursive_directory_iterator(a_binPath))
     {
@@ -77,6 +77,7 @@ std::vector<std::filesystem::path> GetAllDlls(const std::filesystem::path& a_bin
         if (extenstion != ".dll" && extenstion != ".lib")
         {
             // Skip things that don't export functions (and badly named dlls)
+            // TODO Find if user wants something else (.so/.a on linux, .pyd files in python)
             continue;
         }
 
@@ -223,19 +224,36 @@ std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_a
                     }
                     continue;
                 }
+                else if (completed) continue; // if we are done skip everything
                 else if (!completed)
                 {
-                    // Check if this is the line after exports
+                    // Check if this is the line after exports (tells us if we are done)
                     if (anExport.find("Summary") != std::string::npos)
                     {
                         completed = true;
                         break;
                     }
                 }
-                else if (completed) continue;
 
-                dllInfo.m_dllExports.push_back(anExport);
+                // We found an export
+                // if our export empty string or just spaces, skip it.
+                size_t workingCharacter = anExport.find_first_not_of(" ");
+                if (workingCharacter == std::string::npos)
+                {
+                    continue;
+                }
+
+                // first non space char is our export number so we don't need it
+                workingCharacter = anExport.find_first_not_of(" ", workingCharacter+1);
+                // second non space char is our "hint" (zero indexed export number?) so we don't need it
+                workingCharacter = anExport.find_first_not_of(" ", workingCharacter+1);
+                // third non space char is "RVA" (looks like a hash of the symbol or a pointer) so we don't need it
+                workingCharacter = anExport.find(" ", workingCharacter + 2);
+
+                // Strip the first bit of symbol that we don't care about then push it back to return it
+                dllInfo.m_dllExports.push_back(anExport.substr(workingCharacter));
             }
+
             // check we hit something interesting
             if (started)
             {
