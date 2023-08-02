@@ -24,12 +24,11 @@ namespace link_error_helper
 {
 namespace /*anonymous*/ {
 
-// TODO Could this be done better? Like with async
-[[nodiscard]] std::stringstream ExecuteProcess(const char* a_cmd) 
+[[nodiscard]] std::stringstream ExecuteProcess(const std::string& a_cmd) 
 {
     std::array<char, 128> buffer;
     std::stringstream result;
-    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(a_cmd, "r"), _pclose);
+    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(a_cmd.c_str(), "r"), _pclose);
     // if we got a nullptr, return (or throw) instead of crashing
     if (!pipe) 
     {
@@ -173,7 +172,7 @@ std::filesystem::path GetBinPath(const std::filesystem::path& a_rootDir)
 
 
 // TODO return vector of DllInfo instead of strings
-LINKERRORHELPERTOOL_API [[nodiscard]]
+[[nodiscard]] LINKERRORHELPERTOOL_API
 std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_allDlls)
 {
 #if defined(_WIN32) || defined(_WIN64)
@@ -202,7 +201,7 @@ std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_a
             return;
         }
         std::string command = dumpBinCommand + "\"" + a_dllPath.string() + "\"";
-        std::stringstream exports = ExecuteProcess(command.c_str());
+        std::stringstream exports = ExecuteProcess(command);
         DllInfo dllInfo{a_dllPath.filename().string(), {} }; 
         std::string anExport;
         dllInfo.m_dllExports.reserve(10); // Number of exported items in a dll, ten seems a good lower bound
@@ -274,7 +273,7 @@ std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_a
     return dlls;
 }
 
-LINKERRORHELPERTOOL_API [[nodiscard]]
+[[nodiscard]] LINKERRORHELPERTOOL_API
 std::vector<std::string> GetSuggestions(const std::vector<DllInfo>& a_allExports)
 {
     throw NotImplemented();

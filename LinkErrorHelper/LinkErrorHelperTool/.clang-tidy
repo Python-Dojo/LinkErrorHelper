@@ -1,0 +1,25 @@
+Checks: '-*,readability-identifier-naming,google-readability-avoid-underscore-in-googletest-name'
+CheckOptions:
+  - { key: readability-identifier-naming.NamespaceCase,                   value: "lower_case" }
+  - { key: readability-identifier-naming.ConstantParameterCase,           value: "camelBack"  }
+  - { key: readability-identifier-naming.ConstantParameterPrefix,         value: "a_"         }
+  - { key: readability-identifier-naming.TemplateParameterCase,           value: "CamelCase"  }
+  - { key: readability-identifier-naming.MacroDefinitionCase,             value: "UPPER_CASE" }
+
+  - { key: readability-identifier-naming.ClassCase,                       value: "CamelCase"  }
+  - { key: readability-identifier-naming.PrivateMemberPrefix,             value: "m_"         }
+  - { key: readability-identifier-naming.ConstantMemberCase,              value: "camelBack"  }
+  - { key: readability-identifier-naming.MemberCase,                      value: "camelBack"  }
+  - { key: readability-identifier-naming.ClassMethodCase,                 value: "CamelCase"  }
+  - { key: readability-identifier-naming.MethodCase,                      value: "CamelCase"  }
+  - { key: readability-identifier-naming.TypeAliasCase,                   value: "CamelCase"  }
+  - { key: readability-identifier-naming.TypedefCase,                     value: "CamelCase"  }
+
+  - { key: readability-identifier-naming.StructCase,                      value: "CamelCase"  }
+  - { key: readability-identifier-naming.FunctionCase,                    value: "CamelCase"  }
+  - { key: readability-identifier-naming.EnumCase,                        value: "CamelCase"  }
+
+  - { key: readability-identifier-naming.VariableCase,                    value: "camelBack"  }
+  - { key: readability-identifier-naming.GlobalConstantCase,              value: "UPPER_CASE" } 
+  - { key: readability-identifier-naming.PointerParameterSuffix,          value: "_p"         }
+  - { key: readability-identifier-naming.PointerParameterIgnoredRegexp,   value: "^.*?_pp+$"  }

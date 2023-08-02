@@ -44,21 +44,21 @@ public:
 };
 #if __cplusplus > 201402L  // CPP 17 or greater
     
-    LINKERRORHELPERTOOL_API [[nodiscard]] 
+    [[nodiscard]] LINKERRORHELPERTOOL_API
     std::vector<std::filesystem::path> GetAllDlls(const std::filesystem::path& a_binPath);
 
     // if no Bin path was given, try and find one
-    LINKERRORHELPERTOOL_API [[nodiscard]] 
+    [[nodiscard]] LINKERRORHELPERTOOL_API  
     std::filesystem::path GetBinPath(const std::filesystem::path& a_rootDir);
 
     // Nice to have overload 
     [[nodiscard]]
     std::filesystem::path GetBinPath(const std::string& a_pathToRootDir){return GetBinPath(std::filesystem::path(a_pathToRootDir));}
 
-    LINKERRORHELPERTOOL_API [[nodiscard]]
+    [[nodiscard]] LINKERRORHELPERTOOL_API
     std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_allDlls);
 
-    LINKERRORHELPERTOOL_API [[nodiscard]]
+    [[nodiscard]] LINKERRORHELPERTOOL_API
     std::vector<std::string> GetSuggestions(const std::vector<DllInfo>& a_allExports);
 
 
