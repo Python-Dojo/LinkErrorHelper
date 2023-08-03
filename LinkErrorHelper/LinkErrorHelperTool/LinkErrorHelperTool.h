@@ -13,7 +13,7 @@
         #define LINKERRORHELPERTOOL_API __declspec(dllimport)
     #endif
 #else 
-    #define LINKERRORHELPERTOOL_API // No exports
+    #define LINKERRORHELPERTOOL_API // No exports linking statically
 #endif
 
 // Some people don't like using STL through DLLs, let's be nice and take a "you do you attitude" 
@@ -24,6 +24,9 @@
 
 #if __cplusplus > 201402L  // 17 or greater
     #include <filesystem>
+    #define LEH_NO_DISCARD [[nodiscard]]
+#else 
+    #define LEH_NO_DISCARD
 #endif
 
 namespace link_error_helper
@@ -42,50 +45,50 @@ LINKERRORHELPERTOOL_API class NotImplemented : public ::std::logic_error
 public:
     NotImplemented(const ::std::string& a_message = "") : ::std::logic_error("Function not yet implemented" + a_message) {};
 };
-#if __cplusplus > 201402L  // CPP 17 or greater
     
-    [[nodiscard]] LINKERRORHELPERTOOL_API
-    std::vector<std::filesystem::path> GetAllDlls(const std::filesystem::path& a_binPath);
+#if __cplusplus > 201402L  // CPP 17 or greater
 
-    // if no Bin path was given, try and find one
-    [[nodiscard]] LINKERRORHELPERTOOL_API  
-    std::filesystem::path GetBinPath(const std::filesystem::path& a_rootDir);
+/// If no Bin path was given, try and find one
+[[nodiscard]] LINKERRORHELPERTOOL_API  
+::std::filesystem::path GetBinPath(const std::filesystem::path& a_rootDir);
 
-    // Nice to have overload 
-    [[nodiscard]]
-    std::filesystem::path GetBinPath(const std::string& a_pathToRootDir){return GetBinPath(std::filesystem::path(a_pathToRootDir));}
+/// Gets all the Dlls from a specifed path
+[[nodiscard]] LINKERRORHELPERTOOL_API
+::std::vector<std::filesystem::path> GetAllDlls(const std::filesystem::path& a_binPath);
 
-    [[nodiscard]] LINKERRORHELPERTOOL_API
-    std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_allDlls);
+/// Gets everything exported by all Dlls
+[[nodiscard]] LINKERRORHELPERTOOL_API
+::std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_allDlls);
 
-    [[nodiscard]] LINKERRORHELPERTOOL_API
-    std::vector<std::string> GetSuggestions(const std::vector<DllInfo>& a_allExports);
-
-
-#else // CPP 14 API (We still compile with 17)
-
-    // Not yet implemented
-    LINKERRORHELPERTOOL_API
-    std::vector<std::string> GetAllDlls(const std::string& a_binPath);
-
-    // if no Bin path was given, try and find one
-    LINKERRORHELPERTOOL_API
-    std::string GetBinPath(const std::string& a_rootDir);
-
-    LINKERRORHELPERTOOL_API
-    std::vector<DllInfo> GetAllExports(const std::vector<std::string>& a_allDlls);
-
-    LINKERRORHELPERTOOL_API
-    std::vector<std::string> GetSuggestions(const std::vector<DllInfo>& a_allExports);
-
-#endif
+#endif // end if C++ 17 
 
 
+/// Gives back suggestions the tool came up with
+LEH_NO_DISCARD LINKERRORHELPERTOOL_API
+::std::vector<std::string> GetSuggestions(const std::vector<DllInfo>& a_allExports, const std::string& a_errorMessage);
 
+/// Makes the error message smaller, easier to read and easier to understand
+LEH_NO_DISCARD LINKERRORHELPERTOOL_API
+::std::string ParseErrorMessage(const ::std::string& a_errorMessage);
 
+// C++ 14 API (otherwise Handy overloads if we have 17)
+
+// Not yet implemented
+LINKERRORHELPERTOOL_API
+std::vector<std::string> GetAllDlls(const std::string& a_binPath);
+
+LINKERRORHELPERTOOL_API
+std::string GetBinPath(const std::string& a_rootDir);
+
+LINKERRORHELPERTOOL_API
+std::vector<DllInfo> GetAllExports(const std::vector<std::string>& a_allDlls);
+
+} // end namespace
 
 #else // C style May work with C++ 98 if ABI issues are solved by user, but is not a maintained feature
-    // Not yet implemented -- Consider implementing as extern "C" and mark it as such here
+    // Not yet implemented -- and not recommended
+
+_EXTERN_C
 
     enum class ErrorCode
     {
@@ -111,11 +114,11 @@ public:
     ErrorCode GetBinPath(const char* a_rootDir, char*);
 
     LINKERRORHELPERTOOL_API
-    ErrorCode GetAllExports(const char** a_allDlls, C_DllInfo* a_dllInfo, int* a_lengthOfDllInfo);
+    ErrorCode GetAllExports(const char** a_allDllPaths, const int a_lengthOfDllPaths, C_DllInfo* a_dllInfo, int* a_lengthOfDllInfo);
 
     LINKERRORHELPERTOOL_API
-    ErrorCode GetSuggestions(const DllInfo* a_allExports, char** a_suggestions, int* a_lengthOfSuggestions);
+    ErrorCode GetSuggestions(const DllInfo* a_allExports, const int a_lengthOfExports , char** a_suggestions, int* a_lengthOfSuggestions);
+
+_END_EXTERN_C
 
 #endif // C
-
-} // end namespace
