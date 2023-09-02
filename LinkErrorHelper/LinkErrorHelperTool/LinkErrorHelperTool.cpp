@@ -1,61 +1,14 @@
 // LinkErrorHelperTool.cpp : Defines the exported functions for the DLL.
 //
 
-#include "pch.h"
-#include "framework.h"
-#include "LinkErrorHelperTool.h"
-
-#include <cstdio>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <array>
-#include <execution>
-#include <algorithm>
-#include <vector>
-#include <filesystem>
-#include <sstream>
+#include "pch.hpp"
+#include "LinkErrorHelperTool.hpp"
 
 #define MY_LOG_LEVEL 100
 #define MY_LOG(a_level) if(MY_LOG_LEVEL > (int)a_level) std::cout <<"\n"
 
-
 namespace link_error_helper 
 {
-namespace /*anonymous*/ {
-
-[[nodiscard]] std::stringstream ExecuteProcess(const std::string& a_cmd) 
-{
-    std::array<char, 128> buffer;
-    std::stringstream result;
-    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(a_cmd.c_str(), "r"), _pclose);
-    // if we got a nullptr, return (or throw) instead of crashing
-    if (!pipe) 
-    {
-        result << "Failed to get exports";
-        return result;
-        // We don't expect this to fail currently so no point in throwing and catching
-        // throw std::runtime_error("failed to run command");
-    }
-
-    while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) != nullptr) 
-    {
-        result << buffer.data();
-    }
-
-    return result;
-}
-
-[[nodiscard]] bool IsDir(const std::filesystem::path& a_path)
-{
-    if (!std::filesystem::exists(a_path))
-    {
-        return false;
-    }
-    return std::filesystem::is_directory(a_path);
-}
-
-} // end anonymous namespace
 
 LINKERRORHELPERTOOL_API [[nodiscard]] 
 std::vector<std::filesystem::path> GetAllDlls(const std::filesystem::path& a_binPath)
@@ -63,7 +16,7 @@ std::vector<std::filesystem::path> GetAllDlls(const std::filesystem::path& a_bin
     using std::filesystem::path;
     using std::filesystem::recursive_directory_iterator;
     std::vector<path> result;
-    // TODO - Find a more sensible way of estimating this value (must have at least 2 binaries to be getting link errors)
+    // TODO - Find a more sensible way of estimating this value.
     result.reserve(2);
     for (const auto& dll : recursive_directory_iterator(a_binPath))
     {
@@ -95,10 +48,10 @@ std::filesystem::path GetBinPath(const std::filesystem::path& a_rootDir)
     {
         char result = 0;
         // in a source folder
-        result += /*static_cast<char>*/(a_folderName.find("src") != std::string::npos);
-        result += (a_folderName.find("Src") != std::string::npos);
-        result += (a_folderName.find("source") != std::string::npos);
-        result += (a_folderName.find("Source") != std::string::npos);
+        result += static_cast<char>(a_folderName.find("src") != std::string::npos);
+        result += static_cast<char>(a_folderName.find("Src") != std::string::npos);
+        result += static_cast<char>(a_folderName.find("source") != std::string::npos);
+        result += static_cast<char>(a_folderName.find("Source") != std::string::npos);
         // implicate cast from char to bool, 0 is false, everything else is true
         if(result)
         {
@@ -107,12 +60,12 @@ std::filesystem::path GetBinPath(const std::filesystem::path& a_rootDir)
         }
 
         // we are in a second party or thrid party folder
-        result += (a_folderName.find("party") != std::string::npos);
-        result += (a_folderName.find("Party") != std::string::npos);
-        result += (a_folderName.find("bin") != std::string::npos);
-        result += (a_folderName.find("Debug") != std::string::npos);
-        result += (a_folderName.find("Release") != std::string::npos);
-        result += (a_folderName.find("x64") != std::string::npos);
+        result += static_cast<char>(a_folderName.find("party") != std::string::npos);
+        result += static_cast<char>(a_folderName.find("Party") != std::string::npos);
+        result += static_cast<char>(a_folderName.find("Debug") != std::string::npos);
+        result += static_cast<char>(a_folderName.find("Release") != std::string::npos);
+        result += static_cast<char>(a_folderName.find("x64") != std::string::npos);
+        result += static_cast<char>(a_folderName.find("bin") != std::string::npos) * 3;
         return result;
     };
 
@@ -175,6 +128,10 @@ std::filesystem::path GetBinPath(const std::filesystem::path& a_rootDir)
 [[nodiscard]] LINKERRORHELPERTOOL_API
 std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_allDlls)
 {
+
+    // TODO, create a "factory" to try to find dump bin exes 
+    // (use #ifs to exclude vs on linux )
+
 #if defined(_WIN32) || defined(_WIN64)
     // TODO Store vs and dumpbin path in an exported struct so we don't have to get it every time
     // TODO Use windows hackery to find the program files path (may not be on C drive)

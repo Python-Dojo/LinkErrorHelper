@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "pch.hpp"
 
 TEST(TestCaseName, TestName) {
   EXPECT_EQ(1, 1);
