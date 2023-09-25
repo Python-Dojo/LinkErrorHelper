@@ -16,11 +16,6 @@
 namespace link_error_helper
 {
 /// Contains a dll's name and all the exports
-LINKERRORHELPERTOOL_API struct DllInfo
-{
-    ::std::string m_dllName;
-    ::std::vector<::std::string> m_dllExports;
-};
 
 // Exported so people can catch it
 /// Function is not yet supported (like on Linux systems)
@@ -50,7 +45,7 @@ namespace link_error_helper
 [[nodiscard]] LINKERRORHELPERTOOL_API
 ::std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_allDlls);
     
-    // define nodiscard if we have it, has to be in an if block to avoid errors on C++ 14 
+    // define nodiscard if we have it, has to be in a #if block to avoid errors on C++ 14 
     #define LEH_NO_DISCARD [[nodiscard]]
 #else 
     #define LEH_NO_DISCARD
@@ -76,44 +71,6 @@ std::string GetBinPath(const std::string& a_rootDir);
 
 LEH_NO_DISCARD LINKERRORHELPERTOOL_API
 std::vector<DllInfo> GetAllExports(const std::vector<std::string>& a_allDlls);
-
-
-#else // C style May work with C++ 98 if ABI issues are solved by user, but is not a maintained feature
-    // Not yet implemented -- and not recommended
-
-_EXTERN_C
-
-    enum ErrorCode
-    {
-        // Success with no warnings
-        Success = 0, 
-        // Errors are negative
-        UnknownFail = -1, 
-        NotImpleneted = -2,
-        // Warnings are positive (higher numbers are more sever)
-        Warning = 1 
-    };
-
-    LINKERRORHELPERTOOL_API struct LEH_DllInfo
-    {
-        const char* m_dllName;
-        const int m_lengthOfExports;
-        const char ** m_dllExports;
-    };
-
-    LINKERRORHELPERTOOL_API
-    ErrorCode LEH_GetAllDlls(const char* a_binPath, char** a_dllNames, int* a_lengthOfDllNames);
-
-    LINKERRORHELPERTOOL_API
-    ErrorCode LEH_GetBinPath(const char* a_rootDir, char*);
-
-    LINKERRORHELPERTOOL_API
-    ErrorCode LEH_GetAllExports(const char** a_allDllPaths, const int a_lengthOfDllPaths, LEH_DllInfo* a_dllInfo, int* a_lengthOfDllInfo);
-
-    LINKERRORHELPERTOOL_API
-    ErrorCode LEH_GetSuggestions(const DllInfo* a_allExports, const int a_lengthOfExports , char** a_suggestions, int* a_lengthOfSuggestions);
-
-_END_EXTERN_C
 
 #endif // C
 

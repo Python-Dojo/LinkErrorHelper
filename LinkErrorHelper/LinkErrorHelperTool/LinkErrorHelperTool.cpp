@@ -159,11 +159,12 @@ std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_a
         }
         std::string command = dumpBinCommand + "\"" + a_dllPath.string() + "\"";
         std::stringstream exports = ExecuteProcess(command);
-        DllInfo dllInfo{a_dllPath.filename().string(), {} }; 
+        DllInfo dllInfo{a_dllPath.filename().string(), {} };
         std::string anExport;
         dllInfo.m_dllExports.reserve(10); // Number of exported items in a dll, ten seems a good lower bound
-        // easiest thing to search for before dlls, if RVA gets long dumpbin may add more spaces, needs testing
-            // We currently shorten the string until we get somewhere to avoid this
+        
+        // Easiest thing to search for before dlls, if RVA gets long dumpbin may add more spaces, needs testing
+        // We currently shorten the string until we get somewhere to avoid this
         std::string startString = "ordinal hint RVA      name";
         bool completed = false;
         while(!completed)
