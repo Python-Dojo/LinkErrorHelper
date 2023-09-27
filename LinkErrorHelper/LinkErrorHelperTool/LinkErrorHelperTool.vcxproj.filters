@@ -9,9 +9,14 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="C++14">
+      <UniqueIdentifier>{382093c6-1b64-44d1-9be6-deaaca8a65dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CWrapper">
+      <UniqueIdentifier>{e1a5b204-91f0-4756-bb41-4bac51a34273}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DumpBin">
+      <UniqueIdentifier>{4d0815e4-63f8-437d-b4bc-1936f00b62a2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -19,34 +24,34 @@
     <None Include=".clang-tidy" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LinkErrorHelperTool.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="C++14Wrapper.hpp">
+      <Filter>C++14</Filter>
     </ClInclude>
     <ClInclude Include="C_Wrapper.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>CWrapper</Filter>
     </ClInclude>
-    <ClInclude Include="DumpBinWrapper.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="DumpBin\DumpBinWrapper.hpp">
+      <Filter>DumpBin</Filter>
+    </ClInclude>
+    <ClInclude Include="DumpBin\DumpBinContext.hpp">
+      <Filter>DumpBin</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LinkErrorHelperTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="C++14Wrapper.cpp">
+      <Filter>C++14</Filter>
     </ClCompile>
     <ClCompile Include="C_Wrapper.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>CWrapper</Filter>
     </ClCompile>
-    <ClCompile Include="DumpBinWrapperWindows.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="DumpBin\DumpBinWrapper.cpp">
+      <Filter>DumpBin</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

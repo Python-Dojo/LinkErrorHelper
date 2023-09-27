@@ -72,6 +72,7 @@
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>"./"</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -92,6 +93,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>"./"</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -106,20 +108,17 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="C++14Wrapper.hpp" />
     <ClInclude Include="C_Wrapper.hpp" />
-    <ClInclude Include="DumpBinWrapper.hpp" />
-    <ClInclude Include="framework.h" />
+    <ClInclude Include="DumpBin\DumpBinContext.hpp" />
+    <ClInclude Include="DumpBin\DumpBinWrapper.hpp" />
     <ClInclude Include="LinkErrorHelperTool.hpp" />
-    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C++14Wrapper.cpp" />
     <ClCompile Include="C_Wrapper.cpp" />
-    <ClCompile Include="DumpBinWrapperWindows.cpp" />
+    <ClCompile Include="DumpBin\DumpBinWrapper.cpp" />
     <ClCompile Include="LinkErrorHelperTool.cpp" />
-    <ClCompile Include="pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

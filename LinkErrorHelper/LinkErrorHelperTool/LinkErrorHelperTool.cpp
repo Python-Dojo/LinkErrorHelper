@@ -3,7 +3,10 @@
 
 #include "pch.hpp"
 #include "LinkErrorHelperTool.hpp"
+#include "DumpBin/DumpBinWrapper.hpp"
+#include "DumpBin/DumpBinContext.hpp"
 
+LINKERRORHELPERTOOL_API std::logic_error; // avoids a warning but is otherwise useless
 #define MY_LOG_LEVEL 100
 #define MY_LOG(a_level) if(MY_LOG_LEVEL > (int)a_level) std::cout <<"\n"
 
@@ -125,110 +128,26 @@ std::filesystem::path GetBinPath(const std::filesystem::path& a_rootDir)
 
 
 // TODO return vector of DllInfo instead of strings
-[[nodiscard]] LINKERRORHELPERTOOL_API
+LINKERRORHELPERTOOL_API
 std::vector<DllInfo> GetAllExports(const std::vector<std::filesystem::path>& a_allDlls)
 {
-
-    // TODO, create a "factory" to try to find dump bin exes 
-    // (use #ifs to exclude vs on linux )
-
-#if defined(_WIN32) || defined(_WIN64)
-    // TODO Store vs and dumpbin path in an exported struct so we don't have to get it every time
-    // TODO Use windows hackery to find the program files path (may not be on C drive)
-    std::string visualStudioPath = ExecuteProcess("\"C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -property installationPath").str();
-    // remove the \n
-    visualStudioPath = visualStudioPath.substr(0, visualStudioPath.length()-1);
-    MY_LOG(90) << visualStudioPath;
-    std::string dumpBinCommand = "\"\"" + visualStudioPath + "\\VC\\Tools\\MSVC\\14.29.30133\\bin\\Hostx64\\x64\\dumpbin.exe\" /exports ";
-    MY_LOG(60) << dumpBinCommand; 
-#else
+#if !defined(_WIN32) && !defined(_WIN64)
     throw NotImplemented("Function is not yet implemented on non windows Systems, consider adding it at https://github.com/Python-Dojo/LinkErrorHelper/");
 #endif
-    using std::filesystem::path;
 
-    std::vector<DllInfo> dlls;
-    dlls.reserve(a_allDlls.size());
+    std::vector<DllInfo> results;
+    results.reserve(a_allDlls.size());
 
-    const auto RunDumpBin = [&dumpBinCommand, &dlls](path a_dllPath) -> void
+    DumpBinWrapper& dumpBin = DumpBinContext::GetWrapper();
+
+    const auto runDumpBin = [&dumpBin](const std::filesystem::path& a_anyDll, DllInfo& result_info)
     {
-        if (!std::filesystem::exists(a_dllPath))
-        {
-            MY_LOG(0) << "ERROR Could not find bin : " << a_dllPath << "\nPlease make sure it exists";
-            // Skip this item since it doesn't exist
-            return;
-        }
-        std::string command = dumpBinCommand + "\"" + a_dllPath.string() + "\"";
-        std::stringstream exports = ExecuteProcess(command);
-        DllInfo dllInfo{a_dllPath.filename().string(), {} };
-        std::string anExport;
-        dllInfo.m_dllExports.reserve(10); // Number of exported items in a dll, ten seems a good lower bound
-        
-        // Easiest thing to search for before dlls, if RVA gets long dumpbin may add more spaces, needs testing
-        // We currently shorten the string until we get somewhere to avoid this
-        std::string startString = "ordinal hint RVA      name";
-        bool completed = false;
-        while(!completed)
-        {
-            bool started = false; 
-            while( std::getline (exports, anExport, '\n'))
-            {
-                // Skip everything before exports
-                if (!started)
-                {
-                    if (anExport.find(startString) != std::string::npos)
-                    {
-                        started = true;
-                    }
-                    continue;
-                }
-                else if (completed) continue; // if we are done skip everything
-                else if (!completed)
-                {
-                    // Check if this is the line after exports (tells us if we are done)
-                    if (anExport.find("Summary") != std::string::npos)
-                    {
-                        completed = true;
-                        break;
-                    }
-                }
-
-                // We found an export
-                // if our export empty string or just spaces, skip it.
-                size_t workingCharacter = anExport.find_first_not_of(" ");
-                if (workingCharacter == std::string::npos)
-                {
-                    continue;
-                }
-
-                // first non space char is our export number so we don't need it
-                workingCharacter = anExport.find_first_not_of(" ", workingCharacter+1);
-                // second non space char is our "hint" (zero indexed export number?) so we don't need it
-                workingCharacter = anExport.find_first_not_of(" ", workingCharacter+1);
-                // third non space char is "RVA" (looks like a hash of the symbol or a pointer) so we don't need it
-                workingCharacter = anExport.find(" ", workingCharacter + 2);
-
-                // Strip the first bit of symbol that we don't care about then push it back to return it
-                dllInfo.m_dllExports.push_back(anExport.substr(workingCharacter));
-            }
-
-            // check we hit something interesting
-            if (started)
-            {
-                dlls.push_back(dllInfo);
-                // We are done 
-                return;
-            } 
-
-            // If we have failed return.
-            if (6 > startString.length()) return;
-            // if we haven't
-            startString = startString.substr(0, startString.length() - 4);
-        }
+        result_info = dumpBin.GetExports(a_anyDll);
     };
 
-    std::for_each(std::execution::par_unseq, a_allDlls.begin(), a_allDlls.end(), RunDumpBin);
+    std::transform(std::execution::par_unseq, a_allDlls.begin(), a_allDlls.end(), results.begin(), runDumpBin);
 
-    return dlls;
+    return results;
 }
 
 [[nodiscard]] LINKERRORHELPERTOOL_API

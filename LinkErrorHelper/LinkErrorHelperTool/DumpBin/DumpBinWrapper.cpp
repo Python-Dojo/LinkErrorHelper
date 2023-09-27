@@ -93,7 +93,7 @@ private:
             return;
         }
         visualStudioPathTemp = visualStudioPathTemp.substr(0, visualStudioPathTemp.length() - 1);
-        visualStudioPath = std::move(std::filesystem::path(visualStudioPath));
+        visualStudioPath = std::move(std::filesystem::path(visualStudioPathTemp));
         state = State::Valid;
         dumpBinCommand =
           "\"\"" + visualStudioPath.string() +

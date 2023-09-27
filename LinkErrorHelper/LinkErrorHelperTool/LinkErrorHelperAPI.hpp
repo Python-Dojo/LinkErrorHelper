@@ -9,3 +9,10 @@
 #else 
     #define LINKERRORHELPERTOOL_API // No exports (linking statically)
 #endif
+
+/// Contains a dll's name and all the exports
+LINKERRORHELPERTOOL_API struct DllInfo
+{
+    ::std::string m_dllName;
+    ::std::vector<::std::string> m_dllExports;
+};
