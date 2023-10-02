@@ -6,6 +6,8 @@
 
 #pragma once
 
+#if !defined(__INTELLISENSE__)
+
 // Add headers that you want to pre-compile here
 // This can feasibly include most of std/STL
 #include <vector>
@@ -19,3 +21,5 @@
 #include <execution>
 #include <algorithm>
 #include <sstream>
+
+#endif
